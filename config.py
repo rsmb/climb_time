@@ -1,0 +1,1 @@
+MP_URL = "http://www.mountainproject.com"
