@@ -16,13 +16,12 @@ dest_areas = get_destinations(MP_URL)
 mp_data = dest_areas
 
 for area in dest_areas:
-    mp_data[area]["sub_areas"] = get_subarea(MP_URL+dest_areas[area]['link'])
-    print(area, ' ', MP_URL+dest_areas[area]['link'])
+    print(area)
+    page_link = MP_URL+mp_data[area]['link']
+    mp_data[area] = get_page_data(page_link)
+    mp_data[area]["sub_areas"] = get_subarea(page_link)
+    print(mp_data[area])
     for sub_area in mp_data[area]["sub_areas"]:
         print("    ", sub_area, "  ", MP_URL+mp_data[area]["sub_areas"][sub_area]['link'])
+        pass
 
-
-print(len(dest_areas))
-print(mp_data["Tennessee"]['link'])
-print(mp_data["Tennessee"]['pv'])
-print(mp_data["Tennessee"]['latlong'])

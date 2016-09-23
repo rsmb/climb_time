@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="map_style.css" />
+</head>
+<body>
+    <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+
+    <div id="mapid"></div>
+
+    <script>
+
+        var mymap = L.map('mapid').setView([40.313, -98.789], 4);
+
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            maxZoom: 18,
+            id: 'rsmb.1f2i07id',
+            accessToken: 'pk.eyJ1IjoicnNtYiIsImEiOiJjaXRkYmJmOWEwMDFnMnpwaXBzZm5reXgwIn0.elN7Ml0O6wPANOYfeG4reQ',
+        }).addTo(mymap)
+    </script>
+
+</body>
+</html>
