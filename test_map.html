@@ -8,6 +8,8 @@
 </head>
 <body>
     <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
 
     <div id="mapid"></div>
 
@@ -19,7 +21,12 @@
             maxZoom: 18,
             id: 'rsmb.1f2i07id',
             accessToken: 'pk.eyJ1IjoicnNtYiIsImEiOiJjaXRkYmJmOWEwMDFnMnpwaXBzZm5reXgwIn0.elN7Ml0O6wPANOYfeG4reQ',
-        }).addTo(mymap)
+        }).addTo(mymap);
+
+        $.getJSON("mp_data.geojson", function (data) {
+            L.geoJson(data).addTo(mymap)
+        });
+
     </script>
 
 </body>

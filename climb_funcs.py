@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import os
 import re
+import geojson
 import urllib.request
 from config import MP_URL
 
@@ -61,7 +62,6 @@ def get_page_views(html_line):
 def get_season_data(html_line):
     match = {}
     re_result = re.search(r"\['Jan',\d+\].+\['Dec',\d+\]", html_line)
-    # TODO: Figure out how to str -> list, this shit is still fucked
     if re_result:
         # print(re_result.group())
         line_match = re_result.group().split("],[")
@@ -78,7 +78,7 @@ def get_season_data(html_line):
 def get_page_data(page_url):
     lat_long = []
     pv = 0
-    season_list = []
+    season_list = {}
     data_lines = get_page(page_url)
 
     for line in data_lines.split('\n'):
@@ -86,12 +86,10 @@ def get_page_data(page_url):
             lat_long = get_latlng(line)
         elif re.search(r'<tr><td>Page Views:&nbsp;</td><td>.+</td></tr>', line):
             pv = get_page_views(line)
-
-        if re.search(r"\['Jan',\d+\].+\['Dec',\d+\]", line):
+        elif re.search(r"\['Jan',\d+\].+\['Dec',\d+\]", line):
             season_list = get_season_data(line)
-        else:
-            season_list = None
-    data_dict = {'latlong': lat_long,
+
+    data_dict = {'latlng': lat_long,
                  'pv':      pv,
                  'season':  season_list,
                  }
@@ -111,3 +109,17 @@ def get_subarea(parent_url):
     return sub_areas
 
 
+def geojsonify(big_data_dict, out_file):
+    features = []
+    with open(out_file, 'w') as f:
+        for area in big_data_dict:
+            for sub_area in big_data_dict[area]['sub_areas']:
+                sa_data = big_data_dict[area]['sub_areas'][sub_area]
+                sa_properties = {'area': area, 'pv': sa_data['pv'], 'season': sa_data['season']}
+                sa_point = geojson.Point(sa_data['latlng'])
+                if sa_data['latlng']:
+                    features.append(geojson.Feature(sub_area, sa_point, sa_properties))
+
+        f.write(geojson.dumps(geojson.FeatureCollection(features)))
+
+        print("Sucess: data written as ", out_file)

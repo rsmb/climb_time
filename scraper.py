@@ -2,9 +2,8 @@ from bs4 import BeautifulSoup
 import os
 import re
 import urllib.request
-import json
 from climb_funcs import *
-from config import MP_URL
+from config import *
 
 # Check to see if homepage is downloaded, if not download it
 
@@ -26,6 +25,5 @@ for area in dest_areas:
         print('    ', sub_area)
         sub_area_data = get_page_data(MP_URL+mp_data[area]['sub_areas'][sub_area]['link'])
         mp_data[area]["sub_areas"][sub_area] = sub_area_data
-        #json.dumps(sub_area_data, indent=4)
-        #print("    ", sub_area, "  ", MP_URL+mp_data[area]["sub_areas"][sub_area]['link'])
 
+geojsonify(mp_data, GEOJSON_OUT_FILE)
