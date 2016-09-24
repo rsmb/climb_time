@@ -19,7 +19,6 @@ def get_destinations(url):
 
 
 def get_latlng(input_line):
-    # TODO: finish this func
     lat_lng = []
     lat, long = input_line.split(',')
     lat = lat.strip()[28:]
@@ -60,11 +59,20 @@ def get_page_views(html_line):
 
 
 def get_season_data(html_line):
-    season_regex = re.compile(r"\['Jan',\d+\].+\['Dec',\d+\]")
-    season_regex.match(line)
-    # TODO: Figure out how to str -> list
+    match = {}
+    re_result = re.search(r"\['Jan',\d+\].+\['Dec',\d+\]", html_line)
+    # TODO: Figure out how to str -> list, this shit is still fucked
+    if re_result:
+        # print(re_result.group())
+        line_match = re_result.group().split("],[")
+        for month_data in line_match:
+            mon = re.search(r"[A-z]{3}", month_data).group()
+            num = int(re.search(r"\d{1,4}", month_data).group())
+            match[mon] = num
+    else:
+        match = None
 
-    return season_data
+    return match
 
 
 def get_page_data(page_url):
@@ -78,10 +86,11 @@ def get_page_data(page_url):
             lat_long = get_latlng(line)
         elif re.search(r'<tr><td>Page Views:&nbsp;</td><td>.+</td></tr>', line):
             pv = get_page_views(line)
-        elif re.search(r"\['Jan',\d+\].+\['Dec',\d+\]", line):
-            #TODO: function?
-            season_list = get_season_data(line)
 
+        if re.search(r"\['Jan',\d+\].+\['Dec',\d+\]", line):
+            season_list = get_season_data(line)
+        else:
+            season_list = None
     data_dict = {'latlong': lat_long,
                  'pv':      pv,
                  'season':  season_list,
