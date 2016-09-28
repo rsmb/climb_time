@@ -9,7 +9,7 @@
 <body>
     <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-
+    <script src="leaflet-heat.js"></script>
 
     <div id="mapid"></div>
 
@@ -23,8 +23,45 @@
             accessToken: 'pk.eyJ1IjoicnNtYiIsImEiOiJjaXRkYmJmOWEwMDFnMnpwaXBzZm5reXgwIn0.elN7Ml0O6wPANOYfeG4reQ',
         }).addTo(mymap);
 
+        var seasonControl = L.Control.extend({
+            options: {
+                position: 'topright'
+            },
+
+            onAdd: function (mymap) {
+                var container = L.DomUtil.create('div', 'season-control');
+
+                return container
+            }
+        });
+
+        mymap.addControl(new seasonControl());
+
         $.getJSON("mp_data.geojson", function (data) {
-            L.geoJson(data).addTo(mymap)
+            var dotIcon = L.icon({
+                iconUrl: 'dot.png',
+                iconSize: [3, 6]
+            });
+            var heatPoints = [];
+
+            L.geoJson(data, {
+                pointToLayer: function (feature, latlng) {
+                    // var marker = L.marker(latlng, {icon: dotIcon});
+                    // marker.bindPopup(feature.id + "</br>" + feature.properties.season["Jul"]);
+                    //console.log(feature.properties.season["Jul"]);
+                    var heatPoint = [latlng["lat"], latlng["lng"], feature.properties.season["Jul"]/500];
+                    // console.log(heatPoint);
+                    heatPoints.push(heatPoint);
+                    // return marker;
+                }
+            }).addTo(mymap);
+
+            var heat = L.heatLayer(heatPoints, {
+                radius: 25,
+                blur: 15,
+                // gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'},
+                maxZoom: 8
+            }).addTo(mymap);
         });
 
     </script>

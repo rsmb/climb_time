@@ -24,8 +24,8 @@ def get_latlng(input_line):
     lat, long = input_line.split(',')
     lat = lat.strip()[28:]
     long = long.strip()[:-8]
-    lat_lng.append(float(lat))
     lat_lng.append(float(long))
+    lat_lng.append(float(lat))
     return lat_lng
 
 
@@ -111,6 +111,7 @@ def get_subarea(parent_url):
 
 def geojsonify(big_data_dict, out_file):
     features = []
+    # TODO: export json data in per month files?
     with open(out_file, 'w') as f:
         for area in big_data_dict:
             for sub_area in big_data_dict[area]['sub_areas']:
