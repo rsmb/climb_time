@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import os
 import re
+import json
 import geojson
 import urllib.request
 from config import MP_URL
@@ -111,6 +112,13 @@ def get_subarea(parent_url):
 
 def geojsonify(big_data_dict, out_file):
     features = []
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    m_data = {}
+
+    for m in months:
+        m_data[m] = []
+
     # TODO: export json data in per month files?
     with open(out_file, 'w') as f:
         for area in big_data_dict:
@@ -120,7 +128,20 @@ def geojsonify(big_data_dict, out_file):
                 sa_point = geojson.Point(sa_data['latlng'])
                 if sa_data['latlng']:
                     features.append(geojson.Feature(sub_area, sa_point, sa_properties))
+                    if sa_data['season']:
+                        for m in months:
+                            # TODO: Figure out some sort of intensity thing
+                            m_data[m].append([sa_point, sa_data['season'][m]])
+
 
         f.write(geojson.dumps(geojson.FeatureCollection(features)))
 
         print("Sucess: data written as ", out_file)
+
+    for m in months:
+        month_file_name = m + ".geojson"
+        with open(month_file_name, 'w') as f:
+            f.write(json.dumps(m_data[m]))
+            print("Sucess: month data written as ", month_file_name)
+
+

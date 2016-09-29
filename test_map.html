@@ -31,56 +31,61 @@
             options: {
                 position: 'bottomright'
             },
-
             onAdd: function (mymap) {
-                var container = L.DomUtil.create('div', 'season-control widget');
-                L.DomUtil.create('fieldset', 'season-radio', container);
-                return container
+                var seasonControlContainer = L.DomUtil.create('div', 'season-control widget');
+                var fieldSet = L.DomUtil.create('fieldset', 'season-radio', seasonControlContainer);
+                var season_array = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                var fs_innerHTML = "";
+                for (var i = 0; i < season_array.length; i++) {
+                    var sLabel = "<label for=\"radio-"+i+"\">"+season_array[i]+"</label>";
+                    var sInput = '<input type="radio" name="radio-1" id="radio-'+i+'">';
+                    fs_innerHTML += sLabel;
+                    fs_innerHTML += sInput;
+                }
+                fieldSet.innerHTML = fs_innerHTML;
+                return seasonControlContainer
             }
         });
 
         mymap.addControl(new seasonControl());
-
-        $.getJSON("mp_data.geojson", function (data) {
-            var dotIcon = L.icon({
-                iconUrl: 'dot.png',
-                iconSize: [3, 6]
-            });
-            var heatPoints = [];
-
-            L.geoJson(data, {
-                pointToLayer: function (feature, latlng) {
-                    // var marker = L.marker(latlng, {icon: dotIcon});
-                    // marker.bindPopup(feature.id + "</br>" + feature.properties.season["Jul"]);
-                    //console.log(feature.properties.season["Jul"]);
-                    var heatPoint = [latlng["lat"], latlng["lng"], feature.properties.season["Jul"]/500];
-                    // console.log(heatPoint);
-                    heatPoints.push(heatPoint);
-                    // return marker;
-                }
-            }).addTo(mymap);
-
-            var heat = L.heatLayer(heatPoints, {
-                radius: 25,
-                blur: 15,
-                // gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'},
-                maxZoom: 8
-            }).addTo(mymap);
-        });
-
-        var season_array = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        for (var i = 0; i < season_array.length; i++) {
-            var sLabel = "<label for=\"radio-"+i+"\">"+season_array[i]+"</label>";
-            var sInput = '<input type="radio" name="radio-1" id="radio-'+i+'">';
-            $ ( '.season-radio' ).append(sLabel, sInput);
-        }
+        
 
         $( function() {
             $( "input" ).checkboxradio({
                 icon: false
             });
         });
+
+        function get_mpData(dataLayerName) {
+            $.getJSON(dataLayerName+".geojson", function (data) {
+                var heatPoints = [];
+
+                L.geoJson(data, {
+                    pointToLayer: function (feature, latlng) {
+                        var heatPoint = [latlng["lat"], latlng["lng"], feature.properties.season[dataLayerName]/1000];
+                        heatPoints.push(heatPoint);
+                    }
+                });
+
+                var heat = L.heatLayer({
+                    radius: 25,
+                    blur: 15,
+                    maxZoom: 5
+                }).setLatLngs(heatPoints).addTo(mymap);
+            });
+        }
+
+        get_mpData("mp_data");
+
+        mymap.on('click', function (e) {
+            var event = e;
+            if (event.originalEvent.path[0].name == "radio-1") {
+                var buttonName = event.originalEvent.toElement.labels[0].innerText;
+                get_mpData(buttonName);
+            }
+        });
+
     </script>
 
 </body>

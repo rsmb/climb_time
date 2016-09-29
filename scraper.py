@@ -5,13 +5,6 @@ import urllib.request
 from climb_funcs import *
 from config import *
 
-# Check to see if homepage is downloaded, if not download it
-
-    # Extract destination areas from homepage
-
-# For each destination area, check to see if exists, download it, and extract data
-
-
 dest_areas = get_destinations(MP_URL)
 mp_data = dest_areas
 
